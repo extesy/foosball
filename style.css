@@ -1,0 +1,44 @@
+h2 {
+  text-align: center;
+  padding:0;
+  margin:0;
+}
+
+ul {
+  list-style-type: none;
+  padding:0;
+  margin:0;
+}
+
+#sortable li:not(.static) {
+  padding:5px 30px 5px 30px;
+}
+
+#rankgrid {
+  text-align: center;
+}
+
+#graph {
+  width: 100%;
+  height: 100%;
+  margin-top: 20px;
+}
+
+.flotr-legend {
+  font-size: 12px;
+}
+
+.role {
+  float: left;
+  margin: 25px 20px 0px 0px;
+  font-weight: normal;
+}
+
+.swap {
+  float:left;
+  margin: -22px 0px -22px -8px;
+}
+
+#results {
+  zoom: 0.8;
+}

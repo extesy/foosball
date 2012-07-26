@@ -1,0 +1,3 @@
+[submodule "PHPSkills"]
+	path = PHPSkills
+	url = git://github.com/bartrail/PHPSkills.git

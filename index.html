@@ -1,0 +1,117 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>Foosball Tracker</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script src="http://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
+  <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+  <script src="https://raw.github.com/HumbleSoftware/Flotr2/master/flotr2.js"></script>
+  <script src="jquery.ui.touch-punch.min.js"></script>
+  <script src="code.js"></script>
+</head> 
+<body> 
+
+<div data-role="page" id="game" data-title="Game">
+  <div data-role="header" data-theme="c" data-position="fixed" data-id="header">
+    <h1>Foosball Tracker</h1>
+    <div data-role="navbar" data-iconpos="left">
+      <ul>
+        <li><a href="#game" data-icon="grid" class="ui-btn-active ui-state-persist">Game</a></li>
+        <li><a href="#stats" data-icon="info">Rankings</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div data-role="content" data-theme="c">
+    <ul id="sortable">
+      <li class="static">
+        <h2>Team 1</h2>
+      </li>
+      <li class="role static">Goalee:</li>
+      <li>
+        <select name="player11" id="player11">
+          <option value="0">No player</option>
+        </select>
+      </li>
+      <li class="swap static">
+        <button id="swap1" data-icon="refresh" data-mini="true" onclick="swap(1, 2)">swap</button>
+      </li>
+      <li class="role static">Midfield:</li>
+      <li>
+        <select name="player12" id="player12">
+          <option value="0">No player</option>
+        </select>
+      </li>
+      <li class="static">
+        <h2>Team 2</h2>
+      </li>
+      <li class="role static">Goalee:</li>
+      <li>
+        <select name="player21" id="player21">
+          <option value="0">No player</option>
+        </select>
+      </li>
+      <li class="swap static">
+        <button id="swap2" data-icon="refresh" data-mini="true" onclick="swap(3, 4)">swap</button>
+      </li>
+      <li class="role static">Midfield:</li>
+      <li>
+        <select name="player22" id="player22">
+          <option value="0">No player</option>
+        </select>
+      </li>
+    </ul>
+    <h2>Game results</h2>
+    <div class="ui-grid-a" id="results">
+      <div class="ui-block-a" id="team1">Team 1</div>
+      <div class="ui-block-b" id="team2">Team 2</div>
+      <div class="ui-block-a">
+        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+          <input type="radio" name="team1score" id="score10" /><label for="score10">0</label>
+          <input type="radio" name="team1score" id="score11" /><label for="score11">1</label>
+          <input type="radio" name="team1score" id="score12" /><label for="score12">2</label>
+          <input type="radio" name="team1score" id="score13" /><label for="score13">3</label>
+          <input type="radio" name="team1score" id="score14" /><label for="score14">4</label>
+          <input type="radio" name="team1score" id="score15" /><label for="score15">5</label>
+        </fieldset>
+      </div>
+      <div class="ui-block-b">
+        <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">
+          <input type="radio" name="team2score" id="score20" /><label for="score20">0</label>
+          <input type="radio" name="team2score" id="score21" /><label for="score21">1</label>
+          <input type="radio" name="team2score" id="score22" /><label for="score22">2</label>
+          <input type="radio" name="team2score" id="score23" /><label for="score23">3</label>
+          <input type="radio" name="team2score" id="score24" /><label for="score24">4</label>
+          <input type="radio" name="team2score" id="score25" /><label for="score25">5</label>
+        </fieldset>
+      </div>
+    </div>
+    <button id="submit" data-icon="check" data-theme="b" onclick="submit()">Submit results</button>
+  </div>
+
+  <div data-role="footer" data-theme="c" data-position="fixed">
+  </div>
+</div>
+
+<div data-role="page" id="stats" data-title="Rankings">
+  <div data-role="header" data-theme="c" data-position="fixed" data-id="header">
+    <h1>Foosball Tracker</h1>
+    <div data-role="navbar" data-iconpos="left">
+      <ul>
+        <li><a href="#game" data-icon="grid">Game</a></li>
+        <li><a href="#stats" data-icon="info" class="ui-btn-active ui-state-persist">Rankings</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div data-role="content">
+    <div class="ui-grid-a" id="rankgrid"></div>
+    <div id="graph"></div>
+  </div>
+</div>
+
+</body>
+</html>
