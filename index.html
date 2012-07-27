@@ -19,8 +19,9 @@
     <h1>Foosball Tracker</h1>
     <div data-role="navbar" data-iconpos="left">
       <ul>
-        <li><a href="#game" data-icon="grid" class="ui-btn-active ui-state-persist">Game</a></li>
+        <li><a href="#game" data-icon="home" class="ui-btn-active ui-state-persist">Game</a></li>
         <li><a href="#stats" data-icon="info">Rankings</a></li>
+        <li><a href="#log" data-icon="grid">Log</a></li>
       </ul>
     </div>
   </div>
@@ -101,8 +102,9 @@
     <h1>Foosball Tracker</h1>
     <div data-role="navbar" data-iconpos="left">
       <ul>
-        <li><a href="#game" data-icon="grid">Game</a></li>
+        <li><a href="#game" data-icon="home">Game</a></li>
         <li><a href="#stats" data-icon="info" class="ui-btn-active ui-state-persist">Rankings</a></li>
+        <li><a href="#log" data-icon="grid">Log</a></li>
       </ul>
     </div>
   </div>
@@ -110,6 +112,23 @@
   <div data-role="content">
     <div class="ui-grid-a" id="rankgrid"></div>
     <div id="graph"></div>
+  </div>
+</div>
+
+<div data-role="page" id="log" data-title="Log">
+  <div data-role="header" data-theme="c" data-position="fixed" data-id="header">
+    <h1>Foosball Tracker</h1>
+    <div data-role="navbar" data-iconpos="left">
+      <ul>
+        <li><a href="#game" data-icon="home">Game</a></li>
+        <li><a href="#stats" data-icon="info">Rankings</a></li>
+        <li><a href="#log" data-icon="grid" class="ui-btn-active ui-state-persist">Log</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div data-role="content">
+    <div class="ui-grid-c" id="loggrid"></div>
   </div>
 </div>
 

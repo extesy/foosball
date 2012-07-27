@@ -156,6 +156,7 @@ function resetScores() {
   validate();
 }
 
+
 $('#game').live('pageinit', function() {
   updateTeamNames();
   resetScores();
@@ -196,6 +197,7 @@ $('#game').live('pageinit', function() {
       stop: function() {
         updateTeamNames();
         validate();
+        updateMatchScore();
       }
     })
     .disableSelection();
@@ -215,12 +217,46 @@ $('#stats').live('pageshow', function(toPage, options) {
     var d = [];
     $.each(data, function(key, value) {
       if (d[value[1]] == null) {
-        d[value[1]] = { data: [], label: value[2], /*lines : { show : true }, points : { show : true }*/ };
+        d[value[1]] = { data: [], label: value[2], lines : { show : true }, points : { show : true } };
       }
       d[value[1]].data.push([new Date(value[0] * 1000), value[3]]);
     });
     rankings = d.splice(1);
     chart();
+  });
+});
+
+function populateLogGrid(data)
+{
+  var html = '';
+  $.each(data, function(key, value) {
+    var date = new Date(value[0] * 1000);
+    date = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+    var team1 = value[1].split(',');
+    var team2 = value[2].split(',');
+    team1 = getTeamPlayersText(team1[0], team1.length > 1 ? team1[1] : 0);
+    team2 = getTeamPlayersText(team2[0], team2.length > 1 ? team2[1] : 0);
+    var teams = team1 + " vs " + team2;
+    var scores = value[3].split(',');
+    scores = scores[0] + ':' + scores[1];
+    html += '<div class="ui-block-a ui-bar-c">' + date + '</div>';
+    html += '<div class="ui-block-b ui-bar-c">' + team1 + '</div>';
+    html += '<div class="ui-block-c ui-bar-c">' + team2 + '</div>';
+    html += '<div class="ui-block-d ui-bar-c">' + scores + '</div>';
+  });
+  $('#loggrid').html(html);
+}
+
+$('#log').live('pageshow', function(toPage, options) {
+  $.getJSON('api.php?action=log', function(data) {
+    if (players) populateLogGrid(data);
+    else {
+      $.getJSON('api.php?action=players', function(data1) {
+        players = data1;
+        players.sort(function(a, b) { a = a[1]; b = b[1]; return a < b ? -1 : (a > b ? 1 : 0); });
+        populateLogGrid(data);
+      });
+    }
   });
 });
 
