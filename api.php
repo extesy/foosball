@@ -8,6 +8,7 @@ require_once('update_stats.php');
 require_once('players.php');
 require_once('ranking.php');
 require_once('history.php');
+require_once('match.php');
 
 $action = $_REQUEST['action'];
 switch ($action) {
@@ -25,5 +26,11 @@ switch ($action) {
         break;
     case 'history':
         echo json_encode(history());
+        break;
+    case 'match':
+        if (isset($_REQUEST['team2']))
+          echo json_encode(match($_REQUEST['team1'], $_REQUEST['team2']));
+        else
+          echo json_encode(bestmatch($_REQUEST['team1']));
         break;
 }

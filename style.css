@@ -35,10 +35,20 @@ ul {
 }
 
 .swap {
-  float:left;
+  float: left;
   margin: -22px 0px -22px -8px;
 }
 
-#results {
-  zoom: 0.8;
+.matchscore {
+  float: right;
+  margin-top: 5px;
+}
+
+.ui-radio input {
+  display: none;
+}
+
+.ui-radio .ui-btn-inner {
+  padding-left: 8px;
+  padding-right: 8px;
 }

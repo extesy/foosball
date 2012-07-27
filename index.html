@@ -8,7 +8,7 @@
   <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
   <script src="http://code.jquery.com/ui/1.8.21/jquery-ui.min.js"></script>
   <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
-  <script src="https://raw.github.com/HumbleSoftware/Flotr2/master/flotr2.js"></script>
+  <script src="http://www.humblesoftware.com/static/js/flotr2.min.js"></script>
   <script src="jquery.ui.touch-punch.min.js"></script>
   <script src="code.js"></script>
 </head> 
@@ -28,7 +28,7 @@
   <div data-role="content" data-theme="c">
     <ul id="sortable">
       <li class="static">
-        <h2>Team 1</h2>
+        <h2>Team 1 <button id="findmatch" data-inline="true" data-mini="true" onclick="findBestMatch()">Find match</button></h2>
       </li>
       <li class="role static">Goalee:</li>
       <li>
@@ -46,7 +46,7 @@
         </select>
       </li>
       <li class="static">
-        <h2>Team 2</h2>
+        <h2>Team 2<span id="matchscore"></span></h2>
       </li>
       <li class="role static">Goalee:</li>
       <li>

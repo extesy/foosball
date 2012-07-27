@@ -9,6 +9,13 @@ function getPlayerName(playerid) {
   }
 }
 
+function getPlayerIndex(playerid) {
+  for (i = 0; i < players.length; i++) {
+    if (players[i][0] == playerid)
+      return i + 1;
+  }
+}
+
 function getTeamPlayersText(player1id, player2id) {
   if (player1id == 0) return getPlayerName(player2id);
   if (player2id == 0) return getPlayerName(player1id);
@@ -34,20 +41,46 @@ function addPlayersToSelect(listName) {
   $('#'+listName).bind('change', function(event, ui) {
     updateTeamNames();
     validate();
+    updateMatchScore();
   });
 }
 
-function getSelectedPlayers() {
+function updateMatchScore()
+{
+  $('#matchscore').html('');
+  var players = getSelectedPlayers();
+  if (typeof players == 'string') return;
+  var url = 'api.php?action=match&team1=' + players[0] + ',' + players[1] + '&team2=' + players[2] + ',' + players[3];
+  $.getJSON(url, function(data) {
+    $('#matchscore').html(' (' + data + '% match)');
+  });
+}
+
+function findBestMatch()
+{
+  var players = getSelectedPlayers(true);
+  var url = 'api.php?action=match&team1=' + players[0] + ',' + players[1];
+  $.getJSON(url, function(data) {
+    var select1 = $('#sortable select')[2];
+    var select2 = $('#sortable select')[3];
+    $(select1).prop('selectedIndex', getPlayerIndex(data[0])).selectmenu('refresh');
+    $(select2).prop('selectedIndex', data.length > 1 ? getPlayerIndex(data[1]) : 0).selectmenu('refresh');
+    updateMatchScore();
+  });
+}
+
+function getSelectedPlayers(checkOnlyFirstTeam) {
   var players = [];
   $('#sortable li').each(function(){
     var val = $('option:selected', this).val();
     if (val != null) players.push(val);
   });
   if (players.length != 4) return 'Incorrect number of selected options';
-  if ((players[0] == 0 && players[1] == 0) || (players[2] == 0 && players[3] == 0)) return 'Please select players for each team';
+  if (checkOnlyFirstTeam) players = players.slice(0,2);
+  if ((players[0] == 0 && players[1] == 0) || (!checkOnlyFirstTeam && (players[2] == 0 && players[3] == 0))) return 'Please select players for each team';
   var sorted = players.slice(0);
   sorted.sort();
-  if ((sorted[0] == sorted[1] && sorted[0] != 0) || sorted[1] == sorted[2] || sorted[2] == sorted[3]) return 'Please use unique players for each team';
+  if ((sorted[0] == sorted[1] && sorted[0] != 0) || (!checkOnlyFirstTeam && (sorted[1] == sorted[2] || sorted[2] == sorted[3]))) return 'Please use unique players for each team';
   return players;
 }
 
@@ -59,6 +92,9 @@ function validate() {
     if (typeof players == 'string') valid = false;
   }
   $('#submit').button(valid ? 'enable' : 'disable');
+
+  var players = getSelectedPlayers(true);
+  $('#findmatch').button(typeof players != 'string' ? 'enable' : 'disable');
 }
 
 function getScores() {
