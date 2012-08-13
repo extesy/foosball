@@ -264,3 +264,8 @@ $(window).resize(function() {
   if (timer) window.clearTimeout(timer);
   timer = window.setTimeout(chart, 200);
 });
+
+$('a, button').bind('tap', function(e) {
+    $(this).trigger('click');
+    e.preventDefault();
+});
