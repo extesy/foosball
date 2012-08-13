@@ -3,14 +3,14 @@ var rankings;
 var timer;
 
 function getPlayerName(playerid) {
-  for (i = 0; i < players.length; i++) {
+  for (var i = 0; i < players.length; i++) {
     if (players[i][0] == playerid)
       return players[i][1].substr(0, players[i][1].indexOf(' '));
   }
 }
 
 function getPlayerIndex(playerid) {
-  for (i = 0; i < players.length; i++) {
+  for (var i = 0; i < players.length; i++) {
     if (players[i][0] == playerid)
       return i + 1;
   }
@@ -61,17 +61,17 @@ function findBestMatch()
   var players = getSelectedPlayers(true);
   var url = 'api.php?action=match&team1=' + players[0] + ',' + players[1];
   $.getJSON(url, function(data) {
-    var select1 = $('#sortable select')[2];
-    var select2 = $('#sortable select')[3];
-    $(select1).prop('selectedIndex', getPlayerIndex(data[0])).selectmenu('refresh');
-    $(select2).prop('selectedIndex', data.length > 1 ? getPlayerIndex(data[1]) : 0).selectmenu('refresh');
+    var select1 = $('#game select')[2];
+    var select2 = $('#game select')[3];
+    $(select1).prop('selectedIndex', getPlayerIndex(data[0]));
+    $(select2).prop('selectedIndex', data.length > 1 ? getPlayerIndex(data[1]) : 0);
     updateMatchScore();
   });
 }
 
 function getSelectedPlayers(checkOnlyFirstTeam) {
   var players = [];
-  $('#sortable li').each(function(){
+  $('#game select').each(function() {
     var val = $('option:selected', this).val();
     if (val != null) players.push(val);
   });
@@ -84,22 +84,30 @@ function getSelectedPlayers(checkOnlyFirstTeam) {
   return players;
 }
 
+function enableButton(name, state) {
+  if (state)
+    $(name).removeClass('disabled').removeAttr("disabled");
+  else
+    $(name).addClass('disabled').attr("disabled", "disabled");
+}
+
 function validate() {
   var scores = getScores();
   var valid = (scores[0] == 5 && scores[1] != 5) || (scores[0] != 5 && scores[1] == 5);
   if (valid) {
-    var players = getSelectedPlayers();
-    if (typeof players == 'string') valid = false;
+    var selectedPlayers = getSelectedPlayers();
+    if (typeof selectedPlayers == 'string') valid = false;
   }
-  $('#submit').button(valid ? 'enable' : 'disable');
 
-  var players = getSelectedPlayers(true);
-  $('#findmatch').button(typeof players != 'string' ? 'enable' : 'disable');
+  enableButton('#submit', valid);
+
+  var selectedPlayers = getSelectedPlayers(true);
+  enableButton('#findmatch', typeof selectedPlayers != 'string');
 }
 
 function getScores() {
-  var score1 = $('input[name=team1score]:checked').prop('id').substr(6);
-  var score2 = $('input[name=team2score]:checked').prop('id').substr(6);
+  var score1 = $('.team1score.active').prop('id').substr(6);
+  var score2 = $('.team2score.active').prop('id').substr(6);
   return [score1, score2];
 }
 
@@ -111,38 +119,40 @@ function submit() {
   var losingTeam = 1 - winningTeam;
   var msg = 'Please confirm that ' + teamNames[winningTeam] + ' ' + (scores[losingTeam] == 0 ? 'skunked ' + teamNames[losingTeam] : 'won the match') + ' with score ' + scores[winningTeam] + ':' + scores[losingTeam];
   if (confirm(msg)) {
+    //$('#submit').button('loading');
     var url = 'api.php?action=update&team1=' + players[0] + ',' + players[1] + '&team2=' + players[2] + ',' + players[3] + '&scores=' + scores[0] + ',' + scores[1];
     $.getJSON(url, function(data) {
       if (data != 'OK') alert(data);
       else resetScores();
+      //$('#submit').button('reset');
     });
   }
 }
 
 function swap(player1, player2) {
-  var select1 = $('#sortable select')[player1-1];
-  var select2 = $('#sortable select')[player2-1];
+  var select1 = $('#game select')[player1-1];
+  var select2 = $('#game select')[player2-1];
   var index1 = $(select1).prop('selectedIndex');
   var index2 = $(select2).prop('selectedIndex');
-  $(select1).prop('selectedIndex', index2).selectmenu('refresh');
-  $(select2).prop('selectedIndex', index1).selectmenu('refresh');
+  $(select1).prop('selectedIndex', index2);
+  $(select2).prop('selectedIndex', index1);
 }
 
 function chart() {
   var el = $('#graph');
   if (!el.is(':visible')) return;
-  el.height($(window).height() - el.position().top - 40);
+  el.height(Math.max(300, $(window).height() - el.position().top - 40));
   var options = {
     xaxis : {
       mode : 'time',
-      noTicks: 10,
+      noTicks: 10
     },
     yaxis : {
-      showLabels : false,
+      showLabels : false
     },
     legend: {
-      backgroundOpacity: 0.75,
-    },
+      backgroundOpacity: 0.75
+    }
   };
   el.html('');
   var graph = document.getElementById('graph');
@@ -150,14 +160,13 @@ function chart() {
 }
 
 function resetScores() {
-  $('#score10').prop('checked', true);
-  $('#score20').prop('checked', true);
-  $('input[type=radio]').checkboxradio("refresh");
+  $('#score10').button('toggle');
+  $('#score20').button('toggle');
   validate();
 }
 
 
-$('#game').live('pageinit', function() {
+$(document).ready(function() {
   updateTeamNames();
   resetScores();
 
@@ -170,45 +179,24 @@ $('#game').live('pageinit', function() {
     addPlayersToSelect('player22');
   });
 
-  $('input[type=radio]').bind('change', function(event, ui) {
+  $('body').on('click', '.team1score,.team2score', function(e) {
+    e.stopImmediatePropagation();
+    $(this).button('toggle');
     validate();
   });
-
-  $('#sortable')
-    .sortable({
-      items: 'li:not(.static)',
-      start: function(){
-        $('.static', this).each(function(){
-          var $this = $(this);
-          $this.data('pos', $this.index());
-        });
-      },
-      change: function() {
-        $sortable = $(this);
-        $statics = $('.static', this).detach();
-        $helper = $('<li></li>').prependTo(this);
-        $statics.each(function(){
-          var $this = $(this);
-          var target = $this.data('pos');
-          $this.insertAfter($('li', $sortable).eq(target));
-        });
-        $helper.remove();
-      },
-      stop: function() {
-        updateTeamNames();
-        validate();
-        updateMatchScore();
-      }
-    })
-    .disableSelection();
 });
 
-$('#stats').live('pageshow', function(toPage, options) {
+$('a[href="#stats"]').live('show', function() {
   $.getJSON('api.php?action=ranking', function(data) {
     var html = '';
+    var position = 1;
     $.each(data, function(key, value) {
-      html += '<div class="ui-block-a">' + value[1] + '</div>';
-      html += '<div class="ui-block-b">' + value[2] + '</div>';
+      html += '<tr>';
+      html += '<td>' + position + '</td>';
+      html += '<td>' + value[1] + '</td>';
+      html += '<td>' + value[2] + '</td>';
+      html += '</tr>';
+      position++;
     });
     $('#rankgrid').html(html);
   });
@@ -231,7 +219,7 @@ function populateLogGrid(data)
   var html = '';
   $.each(data, function(key, value) {
     var date = new Date(value[0] * 1000);
-    date = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+    date = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
     var team1 = value[1].split(',');
     var team2 = value[2].split(',');
     team1 = getTeamPlayersText(team1[0], team1.length > 1 ? team1[1] : 0);
@@ -239,15 +227,17 @@ function populateLogGrid(data)
     var teams = team1 + " vs " + team2;
     var scores = value[3].split(',');
     scores = scores[0] + ':' + scores[1];
-    html += '<div class="ui-block-a ui-bar-c">' + date + '</div>';
-    html += '<div class="ui-block-b ui-bar-c">' + team1 + '</div>';
-    html += '<div class="ui-block-c ui-bar-c">' + team2 + '</div>';
-    html += '<div class="ui-block-d ui-bar-c">' + scores + '</div>';
+    html += '<tr>';
+    html += '<td>' + date + '</td>';
+    html += '<td>' + team1 + '</td>';
+    html += '<td>' + team2 + '</td>';
+    html += '<td>' + scores + '</td>';
+    html += '</tr>';
   });
   $('#loggrid').html(html);
 }
 
-$('#log').live('pageshow', function(toPage, options) {
+$('a[href="#log"]').live('show', function() {
   $.getJSON('api.php?action=log', function(data) {
     if (players) populateLogGrid(data);
     else {
@@ -263,4 +253,9 @@ $('#log').live('pageshow', function(toPage, options) {
 $(window).resize(function() {
   if (timer) window.clearTimeout(timer);
   timer = window.setTimeout(chart, 200);
+});
+
+$('a, button').bind('tap', function(e) {
+    $(this).trigger('click');
+    e.preventDefault();
 });
