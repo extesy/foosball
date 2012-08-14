@@ -3,14 +3,14 @@ var rankings;
 var timer;
 
 function getPlayerName(playerid) {
-  for (i = 0; i < players.length; i++) {
+  for (var i = 0; i < players.length; i++) {
     if (players[i][0] == playerid)
       return players[i][1].substr(0, players[i][1].indexOf(' '));
   }
 }
 
 function getPlayerIndex(playerid) {
-  for (i = 0; i < players.length; i++) {
+  for (var i = 0; i < players.length; i++) {
     if (players[i][0] == playerid)
       return i + 1;
   }
@@ -38,7 +38,7 @@ function addPlayersToSelect(listName) {
     $('#'+listName).append('<option value='+value[0]+'>'+value[1]+'</option>');
   });
 
-  $('#'+listName).bind('change', function(event, ui) {
+  $('#'+listName).bind('change', function() {
     updateTeamNames();
     validate();
     updateMatchScore();
@@ -48,9 +48,9 @@ function addPlayersToSelect(listName) {
 function updateMatchScore()
 {
   $('#matchscore').html('');
-  var players = getSelectedPlayers();
-  if (typeof players == 'string') return;
-  var url = 'api.php?action=match&team1=' + players[0] + ',' + players[1] + '&team2=' + players[2] + ',' + players[3];
+  var selectedPlayers = getSelectedPlayers();
+  if (typeof selectedPlayers == 'string') return;
+  var url = 'api.php?action=match&team1=' + selectedPlayers[0] + ',' + selectedPlayers[1] + '&team2=' + selectedPlayers[2] + ',' + selectedPlayers[3];
   $.getJSON(url, function(data) {
     $('#matchscore').html(' (' + data + '% match)');
   });
@@ -88,8 +88,8 @@ function validate() {
   var scores = getScores();
   var valid = (scores[0] == 5 && scores[1] != 5) || (scores[0] != 5 && scores[1] == 5);
   if (valid) {
-    var players = getSelectedPlayers();
-    if (typeof players == 'string') valid = false;
+    var selectedPlayers = getSelectedPlayers();
+    if (typeof selectedPlayers == 'string') valid = false;
   }
   $('#submit').button(valid ? 'enable' : 'disable');
 
@@ -135,14 +135,14 @@ function chart() {
   var options = {
     xaxis : {
       mode : 'time',
-      noTicks: 10,
+      noTicks: 10
     },
     yaxis : {
-      showLabels : false,
+      showLabels : false
     },
     legend: {
-      backgroundOpacity: 0.75,
-    },
+      backgroundOpacity: 0.75
+    }
   };
   el.html('');
   var graph = document.getElementById('graph');
@@ -170,7 +170,7 @@ $('#game').live('pageinit', function() {
     addPlayersToSelect('player22');
   });
 
-  $('input[type=radio]').bind('change', function(event, ui) {
+  $('input[type=radio]').bind('change', function() {
     validate();
   });
 
@@ -203,7 +203,7 @@ $('#game').live('pageinit', function() {
     .disableSelection();
 });
 
-$('#stats').live('pageshow', function(toPage, options) {
+$('#stats').live('pageshow', function() {
   $.getJSON('api.php?action=ranking', function(data) {
     var html = '';
     $.each(data, function(key, value) {
@@ -236,7 +236,6 @@ function populateLogGrid(data)
     var team2 = value[2].split(',');
     team1 = getTeamPlayersText(team1[0], team1.length > 1 ? team1[1] : 0);
     team2 = getTeamPlayersText(team2[0], team2.length > 1 ? team2[1] : 0);
-    var teams = team1 + " vs " + team2;
     var scores = value[3].split(',');
     scores = scores[0] + ':' + scores[1];
     html += '<div class="ui-block-a ui-bar-c">' + date + '</div>';
@@ -247,7 +246,7 @@ function populateLogGrid(data)
   $('#loggrid').html(html);
 }
 
-$('#log').live('pageshow', function(toPage, options) {
+$('#log').live('pageshow', function() {
   $.getJSON('api.php?action=log', function(data) {
     if (players) populateLogGrid(data);
     else {
