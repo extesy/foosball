@@ -169,7 +169,9 @@ function chart() {
       noTicks: 10
     },
     yaxis : {
-      showLabels : false
+      showLabels : true,
+      autoscale: true,
+      autoscaleMargin: 0.05
     },
     legend: {
       backgroundOpacity: 0.75
@@ -247,7 +249,7 @@ $('#stats').live('pageshow', function() {
   $.getJSON('api.php?action=history', function(data) {
     var d = [];
     $.each(data, function(key, value) {
-      if (d[value[1]] === null) {
+      if (d[value[1]] === null || d[value[1]] === undefined) {
         d[value[1]] = { data: [], label: value[2], lines : { show : true }, points : { show : true } };
       }
       d[value[1]].data.push([new Date(value[0] * 1000), value[3]]);
