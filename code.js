@@ -3,28 +3,40 @@ var rankings;
 var timer;
 
 function getPlayerName(playerid) {
+  var name = null;
   for (var i = 0; i < players.length; i++) {
-    if (players[i][0] == playerid)
-      return players[i][1].substr(0, players[i][1].indexOf(' '));
+    if (players[i][0] === playerid) {
+      name = players[i][1].substr(0, players[i][1].indexOf(' '));
+      break;
+    }
   }
+  return name;
 }
 
 function getPlayerIndex(playerid) {
+  var index = null;
   for (var i = 0; i < players.length; i++) {
-    if (players[i][0] == playerid)
-      return i + 1;
+    if (players[i][0] === playerid) {
+      index = i + 1;
+      break;
+    }
   }
+  return index;
 }
 
 function getTeamPlayersText(player1id, player2id) {
-  if (player1id == 0) return getPlayerName(player2id);
-  if (player2id == 0) return getPlayerName(player1id);
+  if (player1id === 0) {
+      return getPlayerName(player2id);
+  }
+  if (player2id === 0) {
+      return getPlayerName(player1id);
+  }
   return getPlayerName(player1id) + ' & ' + getPlayerName(player2id);
 }
 
 function updateTeamNames() {
   var result = getSelectedPlayers();
-  if (typeof result == 'string') {
+  if (typeof result === 'string') {
     $('#team1').html('Team 1');
     $('#team2').html('Team 2');
     return;
@@ -49,7 +61,9 @@ function updateMatchScore()
 {
   $('#matchscore').html('');
   var selectedPlayers = getSelectedPlayers();
-  if (typeof selectedPlayers == 'string') return;
+  if (typeof selectedPlayers === 'string') {
+      return;
+  }
   var url = 'api.php?action=match&team1=' + selectedPlayers[0] + ',' + selectedPlayers[1] + '&team2=' + selectedPlayers[2] + ',' + selectedPlayers[3];
   $.getJSON(url, function(data) {
     $('#matchscore').html(' (' + data + '% match)');
@@ -73,28 +87,40 @@ function getSelectedPlayers(checkOnlyFirstTeam) {
   var players = [];
   $('#sortable li').each(function(){
     var val = $('option:selected', this).val();
-    if (val != null) players.push(val);
+    if (val !== null) {
+        players.push(val);
+    }
   });
-  if (players.length != 4) return 'Incorrect number of selected options';
-  if (checkOnlyFirstTeam) players = players.slice(0,2);
-  if ((players[0] == 0 && players[1] == 0) || (!checkOnlyFirstTeam && (players[2] == 0 && players[3] == 0))) return 'Please select players for each team';
+  if (players.length !== 4) {
+      return 'Incorrect number of selected options';
+  }
+  if (checkOnlyFirstTeam) {
+      players = players.slice(0,2);
+  }
+  if ((players[0] === 0 && players[1] === 0) || (!checkOnlyFirstTeam && (players[2] === 0 && players[3] === 0))) {
+      return 'Please select players for each team';
+  }
   var sorted = players.slice(0);
   sorted.sort();
-  if ((sorted[0] == sorted[1] && sorted[0] != 0) || (!checkOnlyFirstTeam && (sorted[1] == sorted[2] || sorted[2] == sorted[3]))) return 'Please use unique players for each team';
+  if ((sorted[0] === sorted[1] && sorted[0] !== 0) || (!checkOnlyFirstTeam && (sorted[1] === sorted[2] || sorted[2] === sorted[3]))) {
+      return 'Please use unique players for each team';
+  }
   return players;
 }
 
 function validate() {
   var scores = getScores();
-  var valid = (scores[0] == 5 && scores[1] != 5) || (scores[0] != 5 && scores[1] == 5);
+  var valid = (scores[0] === 5 && scores[1] !== 5) || (scores[0] !== 5 && scores[1] === 5);
   if (valid) {
     var selectedPlayers = getSelectedPlayers();
-    if (typeof selectedPlayers == 'string') valid = false;
+    if (typeof selectedPlayers === 'string') {
+        valid = false;
+    }
   }
   $('#submit').button(valid ? 'enable' : 'disable');
 
   var players = getSelectedPlayers(true);
-  $('#findmatch').button(typeof players != 'string' ? 'enable' : 'disable');
+  $('#findmatch').button(typeof players !== 'string' ? 'enable' : 'disable');
 }
 
 function getScores() {
@@ -109,12 +135,15 @@ function submit() {
   var teamNames = [getTeamPlayersText(players[0], players[1]), getTeamPlayersText(players[2], players[3])];
   var winningTeam = scores[0] > scores[1] ? 0 : 1;
   var losingTeam = 1 - winningTeam;
-  var msg = 'Please confirm that ' + teamNames[winningTeam] + ' ' + (scores[losingTeam] == 0 ? 'skunked ' + teamNames[losingTeam] : 'won the match') + ' with score ' + scores[winningTeam] + ':' + scores[losingTeam];
+  var msg = 'Please confirm that ' + teamNames[winningTeam] + ' ' + (scores[losingTeam] === 0 ? 'skunked ' + teamNames[losingTeam] : 'won the match') + ' with score ' + scores[winningTeam] + ':' + scores[losingTeam];
   if (confirm(msg)) {
     var url = 'api.php?action=update&team1=' + players[0] + ',' + players[1] + '&team2=' + players[2] + ',' + players[3] + '&scores=' + scores[0] + ',' + scores[1];
     $.getJSON(url, function(data) {
-      if (data != 'OK') alert(data);
-      else resetScores();
+      if (data !== 'OK') {
+          alert(data);
+      } else {
+          resetScores();
+      }
     });
   }
 }
@@ -130,7 +159,9 @@ function swap(player1, player2) {
 
 function chart() {
   var el = $('#graph');
-  if (!el.is(':visible')) return;
+  if (!el.is(':visible')) {
+      return;
+  }
   el.height($(window).height() - el.position().top - 40);
   var options = {
     xaxis : {
@@ -184,9 +215,9 @@ $('#game').live('pageinit', function() {
         });
       },
       change: function() {
-        $sortable = $(this);
-        $statics = $('.static', this).detach();
-        $helper = $('<li></li>').prependTo(this);
+        var $sortable = $(this);
+        var $statics = $('.static', this).detach();
+        var $helper = $('<li></li>').prependTo(this);
         $statics.each(function(){
           var $this = $(this);
           var target = $this.data('pos');
@@ -216,7 +247,7 @@ $('#stats').live('pageshow', function() {
   $.getJSON('api.php?action=history', function(data) {
     var d = [];
     $.each(data, function(key, value) {
-      if (d[value[1]] == null) {
+      if (d[value[1]] === null) {
         d[value[1]] = { data: [], label: value[2], lines : { show : true }, points : { show : true } };
       }
       d[value[1]].data.push([new Date(value[0] * 1000), value[3]]);
@@ -248,8 +279,9 @@ function populateLogGrid(data)
 
 $('#log').live('pageshow', function() {
   $.getJSON('api.php?action=log', function(data) {
-    if (players) populateLogGrid(data);
-    else {
+    if (players) {
+        populateLogGrid(data);
+    } else {
       $.getJSON('api.php?action=players', function(data1) {
         players = data1;
         players.sort(function(a, b) { a = a[1]; b = b[1]; return a < b ? -1 : (a > b ? 1 : 0); });
@@ -260,7 +292,9 @@ $('#log').live('pageshow', function() {
 });
 
 $(window).resize(function() {
-  if (timer) window.clearTimeout(timer);
+  if (timer) {
+      window.clearTimeout(timer);
+  }
   timer = window.setTimeout(chart, 200);
 });
 
