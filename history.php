@@ -33,6 +33,7 @@ function get_log_entry($stat, $players)
 function history()
 {
     $id = (int)(isset($_REQUEST['id']) ? $_REQUEST['id'] : 0);
+    $days = (int)(isset($_REQUEST['days']) ? $_REQUEST['days'] : 7);
 
     $players = load_players();
     $stats = load_stats();
@@ -56,6 +57,20 @@ function history()
     foreach ($last as $stat)
     {
         $result[] = get_log_entry($stat, $players);
+    }
+
+    if ($days > 0) {
+        $i = count($result);
+        $set = array();
+        while ($i-- > 0) {
+            $timestamp = $result[$i][0];
+            if (!isset($set[$timestamp])) {
+                if (count($set) >= $days) break;
+                $set[$timestamp] = 0;
+            }
+            $set[$timestamp]++;
+        }
+        if (count($result) > 7) $result = array_slice($result, $i+1);
     }
 
     return $result;
