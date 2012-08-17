@@ -5,7 +5,7 @@ var timer;
 function getPlayerName(playerid) {
   var name = null;
   for (var i = 0; i < players.length; i++) {
-    if (players[i][0] === playerid) {
+    if (parseInt(players[i][0]) === playerid) {
       name = players[i][1].substr(0, players[i][1].indexOf(' '));
       break;
     }
@@ -16,7 +16,7 @@ function getPlayerName(playerid) {
 function getPlayerIndex(playerid) {
   var index = null;
   for (var i = 0; i < players.length; i++) {
-    if (players[i][0] === playerid) {
+    if (parseInt(players[i][0]) === playerid) {
       index = i + 1;
       break;
     }
@@ -79,6 +79,8 @@ function findBestMatch()
     var select2 = $('#sortable select')[3];
     $(select1).prop('selectedIndex', getPlayerIndex(data[0])).selectmenu('refresh');
     $(select2).prop('selectedIndex', data.length > 1 ? getPlayerIndex(data[1]) : 0).selectmenu('refresh');
+    updateTeamNames();
+    validate();
     updateMatchScore();
   });
 }
@@ -87,8 +89,8 @@ function getSelectedPlayers(checkOnlyFirstTeam) {
   var players = [];
   $('#sortable li').each(function(){
     var val = $('option:selected', this).val();
-    if (val !== null) {
-        players.push(val);
+    if (val !== null && val !== undefined) {
+        players.push(parseInt(val));
     }
   });
   if (players.length !== 4) {
@@ -124,8 +126,8 @@ function validate() {
 }
 
 function getScores() {
-  var score1 = $('input[name=team1score]:checked').prop('id').substr(6);
-  var score2 = $('input[name=team2score]:checked').prop('id').substr(6);
+  var score1 = parseInt($('input[name=team1score]:checked').prop('id').substr(6));
+  var score2 = parseInt($('input[name=team2score]:checked').prop('id').substr(6));
   return [score1, score2];
 }
 
@@ -267,8 +269,8 @@ function populateLogGrid(data)
     date = date.getMonth() + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
     var team1 = value[1].split(',');
     var team2 = value[2].split(',');
-    team1 = getTeamPlayersText(team1[0], team1.length > 1 ? team1[1] : 0);
-    team2 = getTeamPlayersText(team2[0], team2.length > 1 ? team2[1] : 0);
+    team1 = getTeamPlayersText(parseInt(team1[0]), team1.length > 1 ? parseInt(team1[1]) : 0);
+    team2 = getTeamPlayersText(parseInt(team2[0]), team2.length > 1 ? parseInt(team2[1]) : 0);
     var scores = value[3].split(',');
     scores = scores[0] + ':' + scores[1];
     html += '<div class="ui-block-a ui-bar-c">' + date + '</div>';
