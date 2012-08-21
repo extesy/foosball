@@ -1,16 +1,11 @@
-.container-fluid {
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
 h2 {
   text-align: center;
   padding:0;
-  margin: 10px 0px 10px 0px;
 }
 
 .swap {
   float: left;
+  margin-top: -7px;
 }
 
 #game select {
@@ -18,10 +13,6 @@ h2 {
 }
 
 #results {
-  width: 100%;
-}
-
-#submit {
   width: 100%;
 }
 
@@ -38,4 +29,13 @@ h2 {
 
 .flotr-legend {
   font-size: 12px;
+}
+
+.team1score, .team2score {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.btn-group {
+  text-align: center;
 }
