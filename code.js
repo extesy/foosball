@@ -128,8 +128,8 @@ function validate() {
   }
   enableButton('#submit', valid);
 
-  var selectedPlayers = getSelectedPlayers(true);
-  enableButton('#findmatch', typeof selectedPlayers !== 'string');
+  var selectedFirstTeamPlayers = getSelectedPlayers(true);
+  enableButton('#findmatch', typeof selectedFirstTeamPlayers !== 'string');
 }
 
 function getScores() {
