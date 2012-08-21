@@ -146,12 +146,14 @@ function submit() {
   var losingTeam = 1 - winningTeam;
   var msg = 'Please confirm that ' + teamNames[winningTeam] + ' ' + (scores[losingTeam] === 0 ? 'skunked ' + teamNames[losingTeam] : 'won the match') + ' with score ' + scores[winningTeam] + ':' + scores[losingTeam];
   if (confirm(msg)) {
+    $('#submit').button('loading');
     var url = 'api.php?action=update&team1=' + players[0] + ',' + players[1] + '&team2=' + players[2] + ',' + players[3] + '&scores=' + scores[0] + ',' + scores[1];
     $.getJSON(url, function(data) {
+      $('#submit').button('reset');
       if (data !== 'OK') {
           alert(data);
       } else {
-          resetScores();
+          setTimeout(resetScores, 0);
       }
     });
   }
