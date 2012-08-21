@@ -126,7 +126,6 @@ function validate() {
         valid = false;
     }
   }
-
   enableButton('#submit', valid);
 
   var selectedPlayers = getSelectedPlayers(true);
@@ -165,6 +164,9 @@ function swap(player1, player2) {
   var index2 = $(select2).prop('selectedIndex');
   $(select1).prop('selectedIndex', index2);
   $(select2).prop('selectedIndex', index1);
+  updateTeamNames();
+  validate();
+  updateMatchScore();
 }
 
 function chart() {
