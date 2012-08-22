@@ -10,6 +10,7 @@ require_once('ranking.php');
 require_once('history.php');
 require_once('log.php');
 require_once('match.php');
+require_once('profile.php');
 
 $action = $_REQUEST['action'];
 switch ($action) {
@@ -36,5 +37,8 @@ switch ($action) {
           echo json_encode(match($_REQUEST['team1'], $_REQUEST['team2']));
         else
           echo json_encode(bestmatch($_REQUEST['team1']));
+        break;
+    case 'profile':
+        echo json_encode(profile($_REQUEST['id']));
         break;
 }
