@@ -66,9 +66,6 @@ function profile($id)
         $opponents[$teams[1-$team][1]] = (isset($opponents[$teams[1-$team][1]]) ? $opponents[$teams[1-$team][1]] : 0) + ($isWinner ? 1 : -1);
     }
 
-    print_r($partners);
-    print_r($opponents);
-
     $stats['best_partner'] = array_keys($partners, max($partners))[0];
     $stats['worst_partner'] = array_keys($partners, min($partners))[0];
     $stats['best_opponent'] = array_keys($opponents, max($opponents))[0];

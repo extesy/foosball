@@ -2,11 +2,11 @@ var players;
 var rankings;
 var timer;
 
-function getPlayerName(playerid) {
+function getPlayerName(playerid, full) {
   var name = null;
   for (var i = 0; i < players.length; i++) {
     if (parseInt(players[i][0]) === playerid) {
-      name = players[i][1].substr(0, players[i][1].indexOf(' '));
+      name = full ? players[i][1] : players[i][1].substr(0, players[i][1].indexOf(' '));
       break;
     }
   }
@@ -223,6 +223,48 @@ $(document).ready(function() {
   });
 });
 
+var statNames = {
+    'games': 'Total games played',
+    'wins': 'Number of wins',
+    'losses': 'Number of losses',
+    'wins_goalee': 'Wins as a goalee',
+    'losses_goalee': 'Losses as a goalee',
+    'wins_midfield': 'Wins as a midfield',
+    'losses_midfield': 'Losses as a midfield',
+    'skunks': 'Number of skunk wins',
+    'skunked': 'Number of skunk losses',
+    'best_partner': 'Best partner',
+    'worst_partner': 'Worst partner',
+    'best_opponent': 'Best opponent',
+    'worst_opponent': 'Worst opponent',
+    'winning_score': 'Top winning score',
+    'losing_score': 'Top losing score'
+};
+
+function showProfile(playerid) {
+    $('a[href="#profile"]').tab('show');
+    $.getJSON('api.php?action=profile&id=' + playerid, function(data) {
+        var html = '<thead><tr><td colspan="2"><h2>' + getPlayerName(playerid, true) + '</h2></td></tr></thead>';
+        $.each(statNames, function(key, value) {
+            html += '<tr>';
+            html += '<td>' + value + '</td>';
+            var val = data[key];
+            if (key.indexOf('partner') !== -1 || key.indexOf('opponent') !== -1) {
+                val = getPlayerName(val);
+            }
+            if (key.indexOf('wins_') !== -1) {
+                val += ' (' + Math.round(val * 100 / data['wins']) + '%)';
+            }
+            if (key.indexOf('losses_') !== -1) {
+                val += ' (' + Math.round(val * 100 / data['losses']) + '%)';
+            }
+            html += '<td>' + val + '</td>';
+            html += '</tr>';
+        });
+        $('#profilegrid').html(html);
+    });
+}
+
 $('a[href="#stats"]').live('show', function() {
   $.getJSON('api.php?action=ranking', function(data) {
     var html = '';
@@ -230,7 +272,7 @@ $('a[href="#stats"]').live('show', function() {
     $.each(data, function(key, value) {
       html += '<tr>';
       html += '<td>' + position + '</td>';
-      html += '<td>' + value[1] + '</td>';
+      html += '<td><a href="#" onclick="showProfile(' + value[0] + ')">' + value[1] + '</a></td>';
       html += '<td>' + value[2] + '</td>';
       html += '</tr>';
       position++;
