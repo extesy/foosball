@@ -252,6 +252,9 @@ function showProfile(playerid) {
             if (key.indexOf('partner') !== -1 || key.indexOf('opponent') !== -1) {
                 val = getPlayerName(val);
             }
+            if (key === 'wins' || key === 'losses') {
+                val += ' (' + Math.round(val * 100 / data['games']) + '%)';
+            }
             if (key.indexOf('wins_') !== -1) {
                 val += ' (' + Math.round(val * 100 / data['wins']) + '%)';
             }
