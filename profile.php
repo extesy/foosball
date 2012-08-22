@@ -1,5 +1,15 @@
 <?php
 
+function getMinMax($array, $isMax)
+{
+    $target = $isMax ? max($array) : min($array);
+    foreach ($array as $key => $value)
+    {
+        if ($value == $target)
+            return $key;
+    }
+}
+
 function profile($id)
 {
     $games = file_get_contents('games.log');
@@ -13,8 +23,8 @@ function profile($id)
         'losses_goalee' => 0,
         'wins_midfield' => 0,
         'losses_midfield' => 0,
-        'skunks' => 0,
-        'skunked' => 0,
+        'skunk_wins' => 0,
+        'skunk_losses' => 0,
         'best_partner' => 0,
         'worst_partner' => 0,
         'best_opponent' => 0,
@@ -55,8 +65,8 @@ function profile($id)
         $stats[$isWinner ? ($isGoalee ? 'wins_goalee' : 'wins_midfield') : ($isGoalee ? 'losses_goalee' : 'losses_midfield')]++;
 
         if (count($result) == 2) {
-            if ($isWinner && $result[1-$team] == 0) $stats['skunks']++;
-            if (!$isWinner && $result[$team] == 0) $stats['skunked']++;
+            if ($isWinner && $result[1-$team] == 0) $stats['skunk_wins']++;
+            if (!$isWinner && $result[$team] == 0) $stats['skunk_losses']++;
             $normalizedResult = $isWinner ? $winningResult : $losingResult;
             $scores[$normalizedResult] = (isset($scores[$normalizedResult]) ? $scores[$normalizedResult] : 0) + ($isWinner ? 1 : -1);
         }
@@ -66,12 +76,12 @@ function profile($id)
         $opponents[$teams[1-$team][1]] = (isset($opponents[$teams[1-$team][1]]) ? $opponents[$teams[1-$team][1]] : 0) + ($isWinner ? 1 : -1);
     }
 
-    $stats['best_partner'] = array_keys($partners, max($partners))[0];
-    $stats['worst_partner'] = array_keys($partners, min($partners))[0];
-    $stats['best_opponent'] = array_keys($opponents, max($opponents))[0];
-    $stats['worst_opponent'] = array_keys($opponents, min($opponents))[0];
-    $stats['winning_score'] = array_keys($scores, max($scores))[0];
-    $stats['losing_score'] = array_keys($scores, min($scores))[0];
+    $stats['best_partner'] = getMinMax($partners, true);
+    $stats['worst_partner'] = getMinMax($partners, false);
+    $stats['best_opponent'] = getMinMax($opponents, true);
+    $stats['worst_opponent'] = getMinMax($opponents, false);
+    $stats['winning_score'] = getMinMax($scores, true);
+    $stats['losing_score'] = getMinMax($scores, false);
 
     return $stats;
 }
