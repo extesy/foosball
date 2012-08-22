@@ -219,6 +219,7 @@ $(document).ready(function() {
   $('body').on('click', '.team1score,.team2score', function(e) {
     e.stopImmediatePropagation();
     $(this).button('toggle');
+    $($(this).hasClass('team1score') ? '#score25' : '#score15').button('toggle');
     validate();
   });
 });
