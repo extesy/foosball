@@ -3,11 +3,12 @@
 function getMinMax($array, $isMax)
 {
     $target = $isMax ? max($array) : min($array);
-    foreach ($array as $key => $value)
-    {
-        if ($value == $target)
+    foreach ($array as $key => $value) {
+        if ($value == $target) {
             return $key;
+        }
     }
+    return null;
 }
 
 function profile($id)
@@ -37,14 +38,21 @@ function profile($id)
     $opponents = array();
     $scores = array();
 
-    foreach ($games as $game)
-    {
-        if (empty($game)) continue;
+    foreach ($games as $game) {
+        if (empty($game)) {
+            continue;
+        }
         $game = explode("\t", $game);
-        if (count($game) != 4) continue;
+        if (count($game) != 4) {
+            continue;
+        }
         $teams = array(explode(",", $game[1]), explode(",", $game[2]));
-        if (!in_array($id, $teams[0]) && !in_array($id, $teams[1])) continue;
-        if (count($teams[0]) != 2 || count($teams[1]) != 2) continue;
+        if (!in_array($id, $teams[0]) && !in_array($id, $teams[1])) {
+            continue;
+        }
+        if (count($teams[0]) != 2 || count($teams[1]) != 2) {
+            continue;
+        }
         $stats['games']++;
 
         $team = in_array($id, $teams[0]) ? 0 : 1;
@@ -65,8 +73,12 @@ function profile($id)
         $stats[$isWinner ? ($isGoalee ? 'wins_goalee' : 'wins_midfield') : ($isGoalee ? 'losses_goalee' : 'losses_midfield')]++;
 
         if (count($result) == 2) {
-            if ($isWinner && $result[1-$team] == 0) $stats['skunk_wins']++;
-            if (!$isWinner && $result[$team] == 0) $stats['skunk_losses']++;
+            if ($isWinner && $result[1-$team] == 0) {
+                $stats['skunk_wins']++;
+            }
+            if (!$isWinner && $result[$team] == 0) {
+                $stats['skunk_losses']++;
+            }
             $normalizedResult = $isWinner ? $winningResult : $losingResult;
             $scores[$normalizedResult] = (isset($scores[$normalizedResult]) ? $scores[$normalizedResult] : 0) + ($isWinner ? 1 : -1);
         }
