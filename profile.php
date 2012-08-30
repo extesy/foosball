@@ -37,6 +37,8 @@ function profile($id)
     $partners = array();
     $opponents = array();
     $scores = array();
+    $winningStreak = $losingStreak = $currentStreak = 0;
+    $lastResult = null;
 
     foreach ($games as $game) {
         if (empty($game)) {
@@ -72,6 +74,18 @@ function profile($id)
         $isGoalee = $id == $teams[$team][0];
         $stats[$isWinner ? ($isGoalee ? 'wins_goalee' : 'wins_midfield') : ($isGoalee ? 'losses_goalee' : 'losses_midfield')]++;
 
+        $currentStreak++;
+        if ($isWinner !== $lastResult) {
+            if ($lastResult && $winningStreak < $currentStreak) {
+                $winningStreak = $currentStreak;
+            }
+            if (!$lastResult && $losingStreak < $currentStreak) {
+                $losingStreak = $currentStreak;
+            }
+            $currentStreak = 1;
+        }
+        $lastResult = $isWinner;
+
         if (count($result) == 2) {
             if ($isWinner && $result[1-$team] == 0) {
                 $stats['skunk_wins']++;
@@ -94,6 +108,8 @@ function profile($id)
     $stats['worst_opponent'] = getMinMax($opponents, false);
     $stats['winning_score'] = getMinMax($scores, true);
     $stats['losing_score'] = getMinMax($scores, false);
+    $stats['winning_streak'] = $winningStreak;
+    $stats['losing_streak'] = $losingStreak;
 
     return $stats;
 }

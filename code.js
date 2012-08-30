@@ -239,7 +239,9 @@ var statNames = {
     'best_opponent': 'Best opponent',
     'worst_opponent': 'Worst opponent',
     'winning_score': 'Top winning score',
-    'losing_score': 'Top losing score'
+    'losing_score': 'Top losing score',
+    'winning_streak': 'Longest winning streak',
+    'losing_streak': 'Longest losing streak'
 };
 
 function showProfile(playerid) {
