@@ -202,7 +202,6 @@ function resetScores() {
     validate();
 }
 
-
 $(document).ready(function() {
     updateTeamNames();
     resetScores();
@@ -221,6 +220,21 @@ $(document).ready(function() {
         $(this).button('toggle');
         $($(this).hasClass('team1score') ? '#score25' : '#score15').button('toggle');
         validate();
+    });
+
+    function switchTab() {
+        var tab = window.location.hash;
+        if (!tab || tab === "#") tab = "#game";
+        $('.nav a[href="' + tab + '"]').tab('show');
+    }
+    switchTab();
+    $(window).on('hashchange', switchTab);
+    $('.nav a').on('click', function (e) {
+        var href = $(e.target).attr("href");
+        if (href === "#game") href = "";
+        window.location.hash = href;
+        switchTab();
+        e.preventDefault();
     });
 });
 
@@ -245,7 +259,7 @@ var statNames = {
 };
 
 function showProfile(playerid) {
-    $('a[href="#profile"]').tab('show');
+    $('.nav a[href="#profile"]').tab('show');
     $.getJSON('api.php?action=profile&id=' + playerid, function(data) {
         var html = '<thead><tr><td colspan="2"><h2>' + getPlayerName(playerid, true) + '</h2></td></tr></thead>';
         $.each(statNames, function(key, value) {
@@ -271,7 +285,7 @@ function showProfile(playerid) {
     });
 }
 
-$('a[href="#stats"]').live('show', function() {
+$('.nav a[href="#stats"]').live('show', function() {
     $.getJSON('api.php?action=ranking', function(data) {
         var html = '';
         var position = 1;
@@ -321,7 +335,7 @@ function populateLogGrid(data)
     $('#loggrid').html(html);
 }
 
-$('a[href="#log"]').live('show', function() {
+$('.nav a[href="#log"]').live('show', function() {
     $.getJSON('api.php?action=log', function(data) {
         if (players) {
             populateLogGrid(data);
@@ -345,20 +359,4 @@ $(window).resize(function() {
 $('a, button').bind('tap', function(e) {
     $(this).trigger('click');
     e.preventDefault();
-});
-
-function switchTab() {
-    var tab = window.location.hash;
-    if (!tab || tab === "#") tab = "#game";
-    $('.nav a[href="' + tab + '"]').tab('show');
-    setTimeout( function(){$(document).scrollTop(0)}, 0 );
-}
-switchTab();
-$(window).hashchange(switchTab);
-$('.nav a').on('click', function (e) {
-    var href = $(e.target).attr("href")
-    if (href === "#game") href = "";
-    window.location.hash = href;
-    switchTab();
-    e.preventDefault()
 });
