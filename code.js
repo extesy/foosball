@@ -346,3 +346,19 @@ $('a, button').bind('tap', function(e) {
     $(this).trigger('click');
     e.preventDefault();
 });
+
+function switchTab() {
+    var tab = window.location.hash;
+    if (!tab || tab === "#") tab = "#game";
+    $('.nav a[href="' + tab + '"]').tab('show');
+    setTimeout( function(){$(document).scrollTop(0)}, 0 );
+}
+switchTab();
+$(window).hashchange(switchTab);
+$('.nav a').on('click', function (e) {
+    var href = $(e.target).attr("href")
+    if (href === "#game") href = "";
+    window.location.hash = href;
+    switchTab();
+    e.preventDefault()
+});
