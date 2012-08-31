@@ -360,3 +360,5 @@ $('a, button').bind('tap', function(e) {
     $(this).trigger('click');
     e.preventDefault();
 });
+
+var socket = io.connect()

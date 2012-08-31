@@ -1,3 +1,6 @@
 [submodule "PHPSkills"]
 path = PHPSkills
 url = git://github.com/bartrail/PHPSkills.git
+[submodule "PythonSkills"]
+path = PythonSkills
+url = git://github.com/McLeopold/PythonSkills.git
