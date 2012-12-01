@@ -1,6 +1,13 @@
+var Foosball = Ember.Application.create({
+    VERSION: '1.0',
+    rootElement: 'body',
+    ApplicationController: Ember.Controller.extend(),
+    ready: function() {
+        this.initialize();
+    }
+});
+
 var players;
-var rankings;
-var timer;
 
 function getPlayerName(playerid, full) {
     var name = null;
@@ -193,7 +200,7 @@ function chart() {
     };
     el.html('');
     var graph = document.getElementById('graph');
-    Flotr.draw(graph, rankings, options);
+    Flotr.draw(graph, Foosball.HistoryController.rankings, options);
 }
 
 function resetScores() {
@@ -285,22 +292,67 @@ function showProfile(playerid) {
     });
 }
 
-$('.nav a[href="#stats"]').live('show', function() {
-    $.getJSON('api.php?action=ranking', function(data) {
-        var html = '';
+Foosball.LeaderboardEntry = Ember.Object.extend({
+    position: null,
+    playerId: null,
+    playerName: null,
+    points: null
+});
+
+Foosball.LeaderboardController = Ember.ArrayController.create({
+    content: [],
+
+    init: function() {
+        this.refresh();
+        return this._super();
+    },
+
+    refresh: function() {
+        var self = this;
+        $.getJSON('api.php?action=ranking', function(data) {
+            self.populateRankings(data);
+        });
+    },
+
+    populateRankings: function(data) {
+        var self = this;
+        self.clear();
         var position = 1;
         $.each(data, function(key, value) {
-            html += '<tr>';
-            html += '<td>' + position + '</td>';
-            html += '<td><a href="#" onclick="showProfile(' + value[0] + ')">' + value[1] + '</a></td>';
-            html += '<td>' + value[2] + '</td>';
-            html += '</tr>';
+            var ranking = Foosball.LeaderboardEntry.create({
+                position: position,
+                playerId: value[0],
+                playerName: value[1],
+                points: value[2]
+            });
+            self.pushObject(ranking);
             position++;
         });
-        $('#rankgrid').html(html);
-    });
+    }
+});
 
-    $.getJSON('api.php?action=history', function(data) {
+Foosball.LeaderboardView = Ember.View.create({
+    templateName: 'leaderboard'
+});
+Foosball.LeaderboardView.appendTo('#stats');
+
+Foosball.HistoryController = Ember.ArrayController.create({
+    rankings: null,
+
+    init: function() {
+        this.refresh();
+        return this._super();
+    },
+
+    refresh: function() {
+        var self = this;
+        $.getJSON('api.php?action=history', function(data) {
+            self.populateHistory(data);
+        });
+    },
+
+    populateHistory: function(data) {
+        var self = this;
         var d = [];
         $.each(data, function(key, value) {
             if (d[value[1]] === null || d[value[1]] === undefined) {
@@ -308,55 +360,85 @@ $('.nav a[href="#stats"]').live('show', function() {
             }
             d[value[1]].data.push([new Date(value[0] * 1000), value[3]]);
         });
-        rankings = d.splice(1);
+        self.rankings = d.splice(1);
         chart();
-    });
+    }
 });
 
-function populateLogGrid(data)
-{
-    var html = '';
-    $.each(data, function(key, value) {
-        var date = new Date(value[0] * 1000);
-        date = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
-        var team1 = value[1].split(',');
-        var team2 = value[2].split(',');
-        team1 = getTeamPlayersText(parseInt(team1[0]), team1.length > 1 ? parseInt(team1[1]) : 0);
-        team2 = getTeamPlayersText(parseInt(team2[0]), team2.length > 1 ? parseInt(team2[1]) : 0);
-        var scores = value[3].split(',');
-        scores = scores[0] + ':' + scores[1];
-        html += '<tr>';
-        html += '<td>' + date + '</td>';
-        html += '<td>' + team1 + '</td>';
-        html += '<td>' + team2 + '</td>';
-        html += '<td>' + scores + '</td>';
-        html += '</tr>';
-    });
-    $('#loggrid').html(html);
-}
+$('.nav a[href="#stats"]').live('show', function() {
+    Foosball.LeaderboardController.refresh();
+    Foosball.HistoryController.refresh();
+});
 
-$('.nav a[href="#log"]').live('show', function() {
-    $.getJSON('api.php?action=log', function(data) {
+Foosball.LogEntry = Ember.Object.extend({
+    date: null,
+    team1: null,
+    team2: null,
+    score: null
+});
+
+Foosball.LogEntriesController = Ember.ArrayController.create({
+    content: [],
+
+    init: function() {
+        this.refresh();
+        return this._super();
+    },
+
+    refresh: function() {
+        var self = this;
         if (players) {
-            populateLogGrid(data);
+            $.getJSON('api.php?action=log', function(data) {
+                self.populateLogEntries(data);
+            });
         } else {
             $.getJSON('api.php?action=players', function(data1) {
                 players = data1;
                 players.sort(function(a, b) { a = a[1]; b = b[1]; return a < b ? -1 : (a > b ? 1 : 0); });
-                populateLogGrid(data);
+                self.refresh();
             });
         }
-    });
-});
+    },
 
-$(window).resize(function() {
-    if (timer) {
-        window.clearTimeout(timer);
+    populateLogEntries: function(data) {
+        var self = this;
+        self.clear();
+        $.each(data, function(key, value) {
+            var date = new Date(value[0] * 1000);
+            date = (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + (date.getMinutes() < 10 ? '0' : '') + date.getMinutes();
+            var team1 = value[1].split(',');
+            var team2 = value[2].split(',');
+            team1 = getTeamPlayersText(parseInt(team1[0]), team1.length > 1 ? parseInt(team1[1]) : 0);
+            team2 = getTeamPlayersText(parseInt(team2[0]), team2.length > 1 ? parseInt(team2[1]) : 0);
+            var scores = value[3].split(',');
+            scores = scores[0] + ':' + scores[1];
+            var logEntry = Foosball.LogEntry.create({
+                date: date,
+                team1: team1,
+                team2: team2,
+                score: scores
+            });
+            self.pushObject(logEntry);
+        });
     }
-    timer = window.setTimeout(chart, 200);
 });
 
-$('a, button').bind('tap', function(e) {
-    $(this).trigger('click');
-    e.preventDefault();
+Foosball.LogEntriesView = Ember.View.create({
+    templateName: 'logEntries'
 });
+Foosball.LogEntriesView.appendTo('#log');
+
+$('.nav a[href="#log"]').live('show', function() {
+    if (players) {
+        Foosball.LogEntriesController.refresh();
+    } else {
+        $.getJSON('api.php?action=players', function(data1) {
+            players = data1;
+            players.sort(function(a, b) { a = a[1]; b = b[1]; return a < b ? -1 : (a > b ? 1 : 0); });
+            Foosball.LogEntriesController.refresh();
+        });
+    }
+});
+
+$(window).on('resize', chart.debounce(200));
+$(window).on('load', function() { new FastClick(document.body); });
