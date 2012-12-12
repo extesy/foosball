@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Foosball Tracker</title>
+  <title>App Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/bootstrap.spacelab.min.css" />
   <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
@@ -10,117 +10,135 @@
 <body>
 
 <div class="tabbable container-fluid">
-  <div class="navbar navbar-fixed-top navbar-inverse" style="position:static">
-    <div class="navbar-inner">
-      <ul class="nav">
-        <li class="active"><a href="#game" data-toggle="tab"><i class="icon-edit"></i> Game</a></li>
-        <li><a href="#stats" data-toggle="tab"><i class="icon-list-alt"></i> Rankings</a></li>
-        <li><a href="#log" data-toggle="tab"><i class="icon-book"></i> Log</a></li>
-        <li style="display:none"><a href="#profile" data-toggle="tab"><i class="icon-info-sign"></i> Profile</a></li>
-      </ul>
+  <script type="text/x-handlebars" data-template-name="application">
+    <div class="navbar navbar-fixed-top navbar-inverse" style="position:static">
+      <div class="navbar-inner">
+        <ul class="nav">
+          <li {{bindAttr class="isGame:active"}}><a {{action doGame}}><i class="icon-edit"></i> Game</a></li>
+          <li {{bindAttr class="isRankings:active"}}><a {{action doRankings}}><i class="icon-list-alt"></i> Rankings</a></li>
+          <li {{bindAttr class="isLog:active"}}><a {{action doLog}}><i class="icon-book"></i> Log</a></li>
+        </ul>
+      </div>
     </div>
-  </div>
-  <div class="tab-content">
-    <div class="tab-pane active" id="game">
-      <h2>Team 1 <button class="btn btn-mini" id="findmatch" onclick="findBestMatch()">Find match</button></h2>
-      <table width="100%">
-        <tr>
-          <td width="15%"><label for="player11">Goalee:</label></td>
-          <td><select name="player11" id="player11"><option value="0">No player</option></select></td>
-        </tr>
-        <tr>
-          <td><button class="swap btn btn-mini" id="swap1" onclick="swap(1, 2)">swap</button></td>
-        </tr>
-        <tr>
-          <td><label for="player12">Midfield:</label></td>
-          <td><select name="player12" id="player12"><option value="0">No player</option></select></td>
-        </tr></table>
-        <h2>Team 2<span id="matchscore"></span></h2>
-        <table width="100%"><tr>
-          <td width="15%"><label for="player21">Goalee:</label></td>
-          <td><select name="player21" id="player21"><option value="0">No player</option></select></td>
-        </tr>
-        <tr>
-          <td><button class="swap btn btn-mini" id="swap2" onclick="swap(3, 4)">swap</button></td>
-        </tr>
-        <tr>
-          <td><label for="player22">Midfield:</label></td>
-          <td><select name="player22" id="player22"><option value="0">No player</option></select></td>
-        </tr>
-      </table>
-      <h2>Game results</h2>
-      <table id="results" cellpadding="5">
-        <thead>
-          <tr>
-            <th><span id="team1">Team 1</span></th>
-            <th><span id="team2">Team 2</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <div class="btn-group" data-toggle="buttons-radio">
-                <button id="score10" class="team1score btn btn-small">0</button>
-                <button id="score11" class="team1score btn btn-small">1</button>
-                <button id="score12" class="team1score btn btn-small">2</button>
-                <button id="score13" class="team1score btn btn-small">3</button>
-                <button id="score14" class="team1score btn btn-small">4</button>
-                <button id="score15" class="team1score btn btn-small">5</button>
-              </div>
-            </td>
-            <td>
-              <div class="btn-group" data-toggle="buttons-radio">
-                <button id="score20" class="team2score btn btn-small">0</button>
-                <button id="score21" class="team2score btn btn-small">1</button>
-                <button id="score22" class="team2score btn btn-small">2</button>
-                <button id="score23" class="team2score btn btn-small">3</button>
-                <button id="score24" class="team2score btn btn-small">4</button>
-                <button id="score25" class="team2score btn btn-small">5</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2">
-              <button class="btn btn-inverse btn-block" data-loading-text="Submitting results..." id="submit" onclick="submit()">Submit results</button>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+    <div class="tab-content">
+      {{outlet}}
     </div>
-    <div class="tab-pane" id="stats">
-      <script type="text/x-handlebars" data-template-name="leaderboard">
-      <table class="table table-bordered table-condensed" id="rankgrid">
-        {{#each Foosball.LeaderboardController}}
-        <tr>
-          <td>{{position}}</td>
-          <td><a href="#" onclick="showProfile({{playerId}})">{{playerName}}</a></td>
-          <td>{{points}}</td>
-        </tr>
-        {{/each}}
-      </table>
+  </script>
+
+    <script type="text/x-handlebars" data-template-name="game">
+      <div class="tab-pane" id="game">
+        <h2>Team 1 <!--button class="btn btn-mini" id="findmatch" onclick="findBestMatch()">Find match</button--></h2>
+        <table width="100%">
+          <tr>
+            <td width="15%"><label>Goalee:</label></td>
+            <td>{{view Ember.Select contentBinding="content" optionValuePath="content.id" optionLabelPath="content.fullName" selectionBinding="selectedPlayer11"}}</td>
+          </tr>
+          <tr>
+            <td><button class="swap btn btn-mini" id="swap1" onclick="swap(1, 2)">swap</button></td>
+          </tr>
+          <tr>
+            <td><label>Midfield:</label></td>
+            <td>{{view Ember.Select contentBinding="content" optionValuePath="content.id" optionLabelPath="content.fullName" selectionBinding="selectedPlayer12"}}</td>
+          </tr></table>
+          <h2>Team 2<span id="matchscore"></span></h2>
+          <table width="100%"><tr>
+            <td width="15%"><label>Goalee:</label></td>
+            <td>{{view Ember.Select contentBinding="content" optionValuePath="content.id" optionLabelPath="content.fullName" selectionBinding="selectedPlayer21"}}</td>
+          </tr>
+          <tr>
+            <td><button class="swap btn btn-mini" id="swap2" onclick="swap(3, 4)">swap</button></td>
+          </tr>
+          <tr>
+            <td><label>Midfield:</label></td>
+            <td>{{view Ember.Select contentBinding="content" optionValuePath="content.id" optionLabelPath="content.fullName" selectionBinding="selectedPlayer22"}}</td>
+          </tr>
+        </table>
+        <h2>Game results</h2>
+        <table id="results" cellpadding="5">
+          <thead>
+            <tr>
+              <th><span id="team1">{{team1name}}</span></th>
+              <th><span id="team2">{{team2name}}</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="btn-group" data-toggle="buttons-radio">
+                  <button id="score10" class="team1score btn btn-small active">0</button>
+                  <button id="score11" class="team1score btn btn-small">1</button>
+                  <button id="score12" class="team1score btn btn-small">2</button>
+                  <button id="score13" class="team1score btn btn-small">3</button>
+                  <button id="score14" class="team1score btn btn-small">4</button>
+                  <button id="score15" class="team1score btn btn-small">5</button>
+                </div>
+              </td>
+              <td>
+                <div class="btn-group" data-toggle="buttons-radio">
+                  <button id="score20" class="team2score btn btn-small active">0</button>
+                  <button id="score21" class="team2score btn btn-small">1</button>
+                  <button id="score22" class="team2score btn btn-small">2</button>
+                  <button id="score23" class="team2score btn btn-small">3</button>
+                  <button id="score24" class="team2score btn btn-small">4</button>
+                  <button id="score25" class="team2score btn btn-small">5</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="2">
+                <button class="btn btn-inverse btn-block" data-loading-text="Submitting results..." id="submit" onclick="submit()" {{bindAttr class="invalid:disabled" disabled="invalid:disabled"}}>Submit results</button>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="rankings">
+      <div class="tab-pane" id="stats">
+        <table class="table table-bordered table-condensed" id="rankgrid">
+          {{#each player in content}}
+          <tr>
+            <td>{{player.position}}</td>
+            <td><a {{action doProfile player}}">{{player.name}}</a></td>
+            <td>{{player.points}}</td>
+          </tr>
+          {{/each}}
+        </table>
         <div id="graph"></div>
-      </script>
-    </div>
-    <div class="tab-pane" id="log">
-      <script type="text/x-handlebars" data-template-name="logEntries">
-      <table class="table table-bordered table-condensed" id="loggrid">
-        {{#each Foosball.LogEntriesController}}
-        <tr>
-            <td>{{date}}</td>
-            <td>{{team1}}</td>
-            <td>{{team2}}</td>
-            <td>{{score}}</td>
-        </tr>
-        {{/each}}
-      </table>
-      </script>
-    </div>
-    <div class="tab-pane" id="profile">
-      <table class="table table-bordered table-condensed" id="profilegrid"></table>
-    </div>
-  </div>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="log">
+      <div class="tab-pane" id="log">
+        <table class="table table-bordered table-condensed" id="loggrid">
+          {{#each game in content}}
+          <tr>
+              <td>{{game.date}}</td>
+              <td>{{game.team1}}</td>
+              <td>{{game.team2}}</td>
+              <td>{{game.score}}</td>
+          </tr>
+          {{/each}}
+        </table>
+      </div>
+    </script>
+
+    <script type="text/x-handlebars" data-template-name="profile">
+      <div class="tab-pane" id="profile">
+        <table class="table table-bordered table-condensed" id="profilegrid">
+          <thead><tr><td colspan="2"><h2>{{name}}</h2></td></tr></thead>
+          {{#each parameter in content}}
+          <tr>
+            <td>{{parameter.name}}</td>
+            <td>{{parameter.value}}</td>
+          </tr>
+          {{/each}}
+        </table>
+      </div>
+    </script>
 </div>
 
 <script src="js/jquery-1.8.3.min.js"></script>
