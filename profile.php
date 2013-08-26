@@ -74,17 +74,18 @@ function profile($id)
         $isGoalee = $id == $teams[$team][0];
         $stats[$isWinner ? ($isGoalee ? 'wins_goalee' : 'wins_midfield') : ($isGoalee ? 'losses_goalee' : 'losses_midfield')]++;
 
-        $currentStreak++;
         if ($isWinner !== $lastResult) {
-            if ($lastResult && $winningStreak < $currentStreak) {
-                $winningStreak = $currentStreak;
-            }
-            if (!$lastResult && $losingStreak < $currentStreak) {
-                $losingStreak = $currentStreak;
-            }
-            $currentStreak = 1;
+            $currentStreak = 0;
+            $lastResult = $isWinner;
         }
-        $lastResult = $isWinner;
+        $currentStreak++;
+
+        if ($isWinner && $winningStreak < $currentStreak) {
+            $winningStreak = $currentStreak;
+        }
+        if (!$isWinner && $losingStreak < $currentStreak) {
+            $losingStreak = $currentStreak;
+        }
 
         if (count($result) == 2) {
             if ($isWinner && $result[1-$team] == 0) {
@@ -100,6 +101,13 @@ function profile($id)
         $partners[$partnerId] = (isset($partners[$partnerId]) ? $partners[$partnerId] : 0) + ($isWinner ? 1 : -1);
         $opponents[$teams[1-$team][0]] = (isset($opponents[$teams[1-$team][0]]) ? $opponents[$teams[1-$team][0]] : 0) + ($isWinner ? 1 : -1);
         $opponents[$teams[1-$team][1]] = (isset($opponents[$teams[1-$team][1]]) ? $opponents[$teams[1-$team][1]] : 0) + ($isWinner ? 1 : -1);
+    }
+
+    if ($lastResult && $winningStreak < $currentStreak) {
+        $winningStreak = $currentStreak;
+    }
+    if (!$lastResult && $losingStreak < $currentStreak) {
+        $losingStreak = $currentStreak;
     }
 
     $stats['best_partner'] = getMinMax($partners, true);
